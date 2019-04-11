@@ -1,22 +1,56 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
+import { GetterTree, MutationTree, ActionTree, Module } from 'vuex';
+import { fetchJson } from '../../utils/api/testCall';
 
-Vue.use(Vuex);
+export interface JsonInfoState {
+  json: string;
+  loading: boolean;
+  error: boolean;
+}
 
-export default new Vuex.Store({
-  state: {
-    jsonString: null,
+const state: JsonInfoState = {
+  json : '',
+  loading : false,
+  error : false,
+};
+
+const getters: GetterTree<JsonInfoState, any> = {
+  jsonString: (state) => {
+    return state.json;
   },
-  getters: {
-    jsonRetrived: state => !!state.jsonString
+  isLoading: (state) => {
+    return state.loading;
   },
-  mutations: {
-    setJson: (state, json) => {
-      state.jsonString = json;
+};
+
+const mutations: MutationTree<JsonInfoState> = {
+  jsonLoaded(state, payload: string) {
+    state.loading = false;
+    state.json = payload;
+    state.error = false;
+  },
+  jsonError(state) {
+    state.loading = false;
+    state.error = true;
+  },
+  jsonLoading(state) {
+    state.loading = true;
+  },
+};
+
+const actions: ActionTree<JsonInfoState, any> = {
+  async fetchData({ commit }) {
+    commit('jsonLoading');
+    try {
+      commit('jsonLoaded', await fetchJson());
+    } catch (err) {
+      commit('jsonError');
     }
   },
-  actions: {
-    
-  }
-  
-});
+};
+
+export const profile: Module<JsonInfoState, any> = {
+  state,
+  getters,
+  actions,
+  mutations,
+};

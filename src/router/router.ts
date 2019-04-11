@@ -3,6 +3,7 @@ import Router from 'vue-router';
 import Home from '@/views/Home.vue';
 import About from '@/views/About.vue';
 import ApiCall from '@/views/ApiCall.vue';
+import breadcrumbNav from '@/views/BreadcrumbNav.vue';
 
 Vue.use(Router);
 
@@ -24,6 +25,11 @@ export default new Router({
       path: '/api',
       name: 'api',
       component: ApiCall,
+    },
+    {
+      path: '/breadcrumb',
+      name: 'breadcrumb',
+      component: breadcrumbNav,
     },
   ],
 });
