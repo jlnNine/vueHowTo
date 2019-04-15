@@ -4,6 +4,8 @@ import Home from '@/views/Home.vue';
 import About from '@/views/About.vue';
 import ApiCall from '@/views/ApiCall.vue';
 import breadcrumbNav from '@/views/BreadcrumbNav.vue';
+import dataInput from '@/views/dataInput.vue';
+import dataOutput from '@/views/dataOutput.vue';
 
 Vue.use(Router);
 
@@ -30,6 +32,16 @@ export default new Router({
       path: '/breadcrumb',
       name: 'breadcrumb',
       component: breadcrumbNav,
+    },
+    {
+      path: '/dataInput',
+      name: 'dataInput',
+      component: dataInput,
+    },
+    {
+      path: '/dataOutput',
+      name: 'dataOutput',
+      component: dataOutput,
     },
   ],
 });

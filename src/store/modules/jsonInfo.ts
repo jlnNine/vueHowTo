@@ -48,7 +48,7 @@ const actions: ActionTree<JsonInfoState, any> = {
   },
 };
 
-export const profile: Module<JsonInfoState, any> = {
+export const jsonInfo: Module<JsonInfoState, any> = {
   state,
   getters,
   actions,

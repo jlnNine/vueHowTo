@@ -29,7 +29,7 @@ export default class Data extends Vue {
  @Getter('isLoading') private isLoading!: boolean;
  @Getter('jsonString') private jsonString!: string;
  @Action('fetchData') private fetchData!: string;
- @State((state) => state.profile.error) private error!: boolean;
+ @State((state) => state.jsonInfo.error) private error!: boolean;
 
 }
 </script>
