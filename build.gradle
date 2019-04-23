@@ -1,0 +1,95 @@
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:4.6.2'
+        classpath 'net.nemerosa:versioning:2.6.0'
+    }
+}
+
+plugins {
+    id 'com.moowork.node' version '1.3.1'
+}
+
+node {
+    version = '10.15.3'
+    yarnVersion = '1.15.2'
+    download = true
+}
+
+build.dependsOn 'yarnbuild'
+clean.dependsOn 'cleanDist'
+check.dependsOn 'lint', 'test'
+
+task bootRun(dependsOn:'start') {
+    group = 'application'
+    description = 'Run the client app'
+}
+
+task start(type:YarnTask, dependsOn:'yarn') {
+    group = 'application'
+    description = 'Run the client app'
+    yarnCommand = ['serve']
+}
+
+task yarnbuild(type:YarnTask, dependsOn:'yarn') {
+    group = 'build'
+    description = 'Build the client bundle in dist'
+    yarnCommand = ['build']
+}
+
+task lint(type:YarnTask, dependsOn:'yarn') {
+    group = 'build'
+    description = 'Run tslint'
+    yarnCommand = [ 'lint' ]
+    environment = [ 'PROJECT_PATH': "${project.rootDir}" ]
+}
+
+task cleanDist {
+    group = 'clean'
+    description = 'Sletter dist folder'
+
+    doLast {
+        delete "${projectDir}/dist"
+        delete "${project.rootDir}/delinting"
+    }
+}
+
+apply from:"$project.rootDir/gradle/docker.gradle"
+
+apply plugin:'net.nemerosa.versioning'
+
+ext {
+    dockerBuildDir = mkdir("${buildDir}/docker")
+    entrypointDir = file('.')
+}
+
+prepareDocker {
+    description = 'Copy files from build'
+
+    group = 'Docker'
+
+    from(entrypointDir) {
+        include 'dist/**'
+    }
+    from "${buildDir}/version.properties"
+    into dockerBuildDir
+}
+prepareDocker.dependsOn 'yarnbuild'
+
+createDockerfile {
+    destFile = file("${dockerBuildDir}/Dockerfile")
+    description = 'Create Dockerfile to build image.'
+    group = dockerBuildGroup
+
+    // Contents of Dockerfile:
+    from 'nginx:stable-alpine'
+    copyFile '/dist', '/usr/share/nginx/html'
+    exposePort 80
+    defaultCommand 'nginx', '-g', 'daemon off;'
+}
+
+buildImage {
+    tags.add dockerTag
+}
